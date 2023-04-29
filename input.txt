@@ -1,0 +1,3 @@
+S - a R a | R
+R - b R | b | epsilon
+
