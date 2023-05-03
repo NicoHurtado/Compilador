@@ -1,6 +1,6 @@
-import read
+import Gramatica
 
-def First(Producciones):
+def First(G, symbolo, P, FIRST_SET):
     return 0
 
 
