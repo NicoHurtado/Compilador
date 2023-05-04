@@ -62,6 +62,32 @@ def FIRST(G, symbol, P, FIRST_SET):
                     if 'Ɛ' in FIRST_SET[element]:
                         FIRST_SET[symbol].append('Ɛ')
 
+def FOLLOW(G):
+    follows = {}
+    for nonterminal in G.noterminals:
+        follows[nonterminal] = []
+    follows[G.inicial].append('$')
+    for nonterminal in G.noterminals:
+        for production in G.producciones[nonterminal]:
+            for i in range(len(production)):
+                if production[i] in G.noterminals:
+                    if i == len(production) - 1:
+                        follows[production[i]].extend(follows[nonterminal])
+                    else:
+                        if production[i+1] in G.terminals:
+                            follows[production[i]].append(production[i+1])
+                        else:
+                            follows[production[i]].extend(FIRST(G, production[i+1], G.producciones[production[i+1]]))
+                            if 'Ɛ' in follows[production[i]]:
+                                follows[production[i]].remove('Ɛ')
+                                follows[production[i]].extend(follows[nonterminal])
+    return follows
+
+def remove_duplicates(dict):
+    for i in dict:
+        dict[i] = list(set(dict[i]))
+    return dict
+
 def main():
 
     noterminals, terminals, inicial, producciones = read('input.txt')
@@ -80,7 +106,13 @@ def main():
         FIRST_SET[i] = []
 
     FIRST(G, G.inicial, G.producciones[G.inicial], FIRST_SET)
+    FOLLOW_SET = FOLLOW(G)
+    FIRST_SET = remove_duplicates(FIRST_SET)
+    FOLLOW_SET = remove_duplicates(FOLLOW_SET)
+
     print(f'FIRST: {FIRST_SET}')
+    print('--'*10)
+    print(f'FOLLOW: {FOLLOW_SET}')
 
 if __name__ == '__main__':
     main()

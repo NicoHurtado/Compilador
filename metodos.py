@@ -6,4 +6,3 @@ def First(G, symbolo, P, FIRST_SET):
 
 def Follows(Producciones):
     return 0
-
