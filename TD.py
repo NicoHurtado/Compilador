@@ -1,3 +1,5 @@
+import pandas as pd
+
 class gramatica:
 
     def __init__(self, noterminals, terminals, inicial, producciones):
@@ -15,7 +17,7 @@ def read(file):
     inicial = ''
     producciones = {}
 
-    with open(file, 'r') as file:
+    with open(file, 'r', encoding='utf-8') as file:
         contenido = file.read()
         inicial = contenido[0]
 
@@ -30,6 +32,9 @@ def read(file):
     
     noterminals = list(NonSet)
     terminals = list(TermSet)
+
+    if 'Ɛ' not in terminals:
+        terminals.append('Ɛ')
 
     for i in noterminals:
         if i == 'Ɛ':
@@ -83,7 +88,48 @@ def FOLLOW(G):
                                 follows[production[i]].extend(follows[nonterminal])
     return follows
 
-def remove_duplicates(dict):
+def Tabla(terminales, noterminales, producciones):
+    tabla = {}
+    for no_terminal in noterminales:
+        tabla[no_terminal] = {}
+        for terminal in terminales:
+            tabla[no_terminal][terminal] = []
+        tabla[no_terminal]['$'] = []
+    for no_terminal, produccion in producciones.items():
+        for prod in produccion:
+            primerSimbolo = prod[0]
+            if primerSimbolo in terminales:
+                tabla[no_terminal][primerSimbolo].append(prod)
+            elif primerSimbolo in noterminales:
+                primeros = PrimeroDeCadaProduccion(terminales, noterminales, producciones, prod)
+                for simbolo in primeros:
+                    tabla[no_terminal][simbolo].append(prod)
+                if 'Ɛ' in primeros:
+                    for simbolo in tabla[no_terminal]['$']:
+                        tabla[no_terminal][simbolo].append(prod)
+    return tabla
+
+def PrimeroDeCadaProduccion(terminales, no_terminales, producciones, produccion):
+    primeros = set()
+    primer_simbolo = produccion[0]
+    if primer_simbolo in terminales:
+        primeros.add(primer_simbolo)
+    elif primer_simbolo in no_terminales:
+        for prod in producciones[primer_simbolo]:
+            if prod == 'Ɛ':
+                if len(produccion) == 1:
+                    primeros.add('Ɛ')
+                else:
+                    for simbolo in PrimeroDeCadaProduccion(terminales, no_terminales, producciones, produccion[1:]):
+                        primeros.add(simbolo)
+            else:
+                for simbolo in PrimeroDeCadaProduccion(terminales, no_terminales, producciones, prod):
+                    primeros.add(simbolo)
+    
+    return primeros
+
+
+def Duplicados(dict):
     for i in dict:
         dict[i] = list(set(dict[i]))
     return dict
@@ -92,11 +138,13 @@ def main():
 
     noterminals, terminals, inicial, producciones = read('input.txt')
 
+    print('--'*10 + 'Proyecto Compiladores' + '--'*10 + '\n')
+
     print("Simbolo inicial: ", inicial)
     print(f'NO Terminales: {noterminals}')
     print(f'Terminales: {terminals}')
-    print(f'Producciones: {producciones}')
-    print('--'*10)
+    print(f'Producciones: {producciones}\n')
+    print('--'*20+'\n')
 
     G = gramatica(noterminals, terminals, inicial, producciones)
 
@@ -107,12 +155,20 @@ def main():
 
     FIRST(G, G.inicial, G.producciones[G.inicial], FIRST_SET)
     FOLLOW_SET = FOLLOW(G)
-    FIRST_SET = remove_duplicates(FIRST_SET)
-    FOLLOW_SET = remove_duplicates(FOLLOW_SET)
+    FIRST_SET = Duplicados(FIRST_SET)
+    FOLLOW_SET = Duplicados(FOLLOW_SET)
+    
 
-    print(f'FIRST: {FIRST_SET}')
-    print('--'*10)
-    print(f'FOLLOW: {FOLLOW_SET}')
+    print(f'FIRST: {FIRST_SET}\n')
+    print('--'*20+'\n')
+    print(f'FOLLOW: {FOLLOW_SET}\n')
+
+    print('--'*8 + ' Tabla de analisis sintactico ' + '--'*8 + '\n')
+    tabla = Tabla(terminals, noterminals, producciones)
+    df = pd.DataFrame(tabla)
+    df = df.transpose() 
+    print(df)
+
 
 if __name__ == '__main__':
     main()
