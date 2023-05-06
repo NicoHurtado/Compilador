@@ -162,7 +162,7 @@ def analizar(txt):
 
     noterminals, terminals, inicial, producciones = read(txt)
 
-    print('--'*10 + 'Proyecto Compiladores' + '--'*10 + '\n')
+    print('\n')
 
     print("Simbolo inicial: ", inicial)
     print(f'NO Terminales: {noterminals}')
@@ -192,4 +192,8 @@ def analizar(txt):
 
 
 if __name__ == '__main__':
+    print('--'*10 + 'Test 1' + '--'*10 + '\n')
+    analizar('input.txt')
+    print('\n')
+    print('--'*10 + 'Test 2' + '--'*10 + '\n')
     analizar('input2.txt')
