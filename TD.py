@@ -26,6 +26,8 @@ def read(file):
             noterminals.append(i)
         elif i.islower():
             terminals.append(i)
+        elif i in ['(', ')', '+', '=', '*',]:
+            terminals.append(i)
 
     NonSet = set(noterminals)
     TermSet = set(terminals)
@@ -47,31 +49,51 @@ def read(file):
 
     return noterminals, terminals, inicial, producciones
 
-def FIRST(G, symbol, P, FIRST_SET):
-    for production in P:
-        counter = 0
-        for element in production:
-            if element in G.terminals:
-                FIRST_SET[symbol].append(element)
-                break
-            if element in G.noterminals:
-                counter += 1
-                if FIRST(G, element, G.producciones[element], FIRST_SET):
-                    FIRST_SET[symbol].extend(FIRST_SET[element])
-                    FIRST_SET[symbol].remove('Ɛ')
-                else:
-                    FIRST_SET[symbol].extend(FIRST_SET[element])
-                    break
+def FIRST(G):
+    FIRST_SET = {}
+    for nonterminal in G.noterminals:
+        FIRST_SET[nonterminal] = set()
+    for terminal in G.terminals:
+        FIRST_SET[terminal] = {terminal}
+    FIRST_SET['Ɛ'] = {'Ɛ'}
+    
+    flag = True
+    while flag:
+        flag = False
+        for nonterminal in G.noterminals:
+            for production in G.producciones[nonterminal]:
+                counter = 0
+                while counter < len(production):
+                    element = production[counter]
+                    if element in G.terminals:
+                        if element not in FIRST_SET[nonterminal]:
+                            FIRST_SET[nonterminal].add(element)
+                            flag = True
+                        break
+                    elif element in G.noterminals:
+                        if 'Ɛ' not in FIRST_SET[element]:
+                            if not (FIRST_SET[element] - {'Ɛ'}).issubset(FIRST_SET[nonterminal]):
+                                FIRST_SET[nonterminal].update(FIRST_SET[element] - {'Ɛ'})
+                                flag = True
+                            break
+                        else:
+                            if counter == len(production) - 1 and 'Ɛ' in FIRST_SET[element]:
+                                FIRST_SET[nonterminal].add('Ɛ')
+                                flag = True
+                            elif not (FIRST_SET[element] - {'Ɛ'}).issubset(FIRST_SET[nonterminal]):
+                                FIRST_SET[nonterminal].update(FIRST_SET[element] - {'Ɛ'})
+                                flag = True
+                    counter += 1
+    
+    return FIRST_SET
 
-                if counter == len(production):
-                    if 'Ɛ' in FIRST_SET[element]:
-                        FIRST_SET[symbol].append('Ɛ')
 
 def FOLLOW(G):
     follows = {}
     for nonterminal in G.noterminals:
         follows[nonterminal] = []
     follows[G.inicial].append('$')
+    first_set = FIRST(G)
     for nonterminal in G.noterminals:
         for production in G.producciones[nonterminal]:
             for i in range(len(production)):
@@ -82,11 +104,13 @@ def FOLLOW(G):
                         if production[i+1] in G.terminals:
                             follows[production[i]].append(production[i+1])
                         else:
-                            follows[production[i]].extend(FIRST(G, production[i+1], G.producciones[production[i+1]]))
+                            follows[production[i]].extend(first_set[production[i+1]])
                             if 'Ɛ' in follows[production[i]]:
                                 follows[production[i]].remove('Ɛ')
                                 follows[production[i]].extend(follows[nonterminal])
     return follows
+
+
 
 def Tabla(terminales, noterminales, producciones):
     tabla = {}
@@ -134,9 +158,9 @@ def Duplicados(dict):
         dict[i] = list(set(dict[i]))
     return dict
 
-def main():
+def analizar(txt):
 
-    noterminals, terminals, inicial, producciones = read('input.txt')
+    noterminals, terminals, inicial, producciones = read(txt)
 
     print('--'*10 + 'Proyecto Compiladores' + '--'*10 + '\n')
 
@@ -148,12 +172,9 @@ def main():
 
     G = gramatica(noterminals, terminals, inicial, producciones)
 
-    FIRST_SET = {}
+    
 
-    for i in noterminals:
-        FIRST_SET[i] = []
-
-    FIRST(G, G.inicial, G.producciones[G.inicial], FIRST_SET)
+    FIRST_SET = FIRST(G)
     FOLLOW_SET = FOLLOW(G)
     FIRST_SET = Duplicados(FIRST_SET)
     FOLLOW_SET = Duplicados(FOLLOW_SET)
@@ -171,4 +192,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    analizar('input2.txt')
