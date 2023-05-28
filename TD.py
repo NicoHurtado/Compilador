@@ -178,3 +178,7 @@ if __name__ == '__main__':
     analizar('input3.txt')
     print('\n')
     
+# input -> LL1
+# input2 -> NO LL1
+# input3 -> LL1
+# input4 -> LL1 (Recursiva por izquierda)

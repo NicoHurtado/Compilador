@@ -85,7 +85,7 @@ def FIRST(G):
                     FIRST_SET[nonterminal].add('Ɛ')
                     flag = True
 
-    # Asegurarse de que 'Ɛ' se incluya en el conjunto FIRST del símbolo inicial
+    
     if 'Ɛ' in FIRST_SET[G.inicial]:
         FIRST_SET[G.inicial].add('Ɛ')
 

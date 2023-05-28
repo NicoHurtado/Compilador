@@ -56,7 +56,7 @@ def build_parsing_table():
     parsing_table = {}
     item_sets = []
 
-    # Agregar la producción E' -> E al conjunto inicial de producciones
+   
     start_production = list(producciones[simbolo_inicial])[0]
     start_item = Item(simbolo_inicial + "'", [simbolo_inicial], 0)
     initial_set = closure([start_item])
@@ -111,6 +111,7 @@ def build_parsing_table():
 
     return parsing_table, item_sets
 
+terminales.append('$')
 
 def print_parsing_table(parsing_table):
     header = ['Estado'] + terminales + no_terminales
@@ -128,27 +129,10 @@ def print_parsing_table(parsing_table):
     table_format = '|'.join('{{:{}}}'.format(width) for width in column_widths)
 
     print(table_format.format(*table[0]))
-    print('-' * sum(column_widths))
+    print('-' * sum(column_widths) + '---------')
 
     for row in table[1:]:
         print(table_format.format(*row))
-
-
-
-parsing_table, item_sets = build_parsing_table()
-
-
-print("Tabla de análisis sintáctico:")
-print_parsing_table(parsing_table)
-
-
-print("\nConjuntos de items y gotos:")
-for i, item_set in enumerate(item_sets):
-    print(f"\nConjunto {i}:")
-    for item in item_set:
-        print(
-            f"  {item.symbol} -> {' '.join(item.production[:item.dot_position])} . {' '.join(item.production[item.dot_position:])}")
-
 
 def verificar_cadena(cadena):
     stack = [0] 
@@ -180,8 +164,33 @@ def verificar_cadena(cadena):
             stack.append(parsing_table[prev_state]['goto'][production[0]])
         elif action == 'ACCEPT':
             return True  
+        
+        return False
 
-    return False
+
+if __name__ == '__main__':
+
+    print("Gramática:")
+    print('Simbolo Inicial: '+ G.inicial)
+    print('No Terminales: '+ str(G.noterminals))
+    print('Terminales: '+ str(G.terminals))
+    print('Producciones: '+ str(G.producciones))
+
+    parsing_table, item_sets = build_parsing_table()
+
+    print("\nConjuntos de items")
+    for i, item_set in enumerate(item_sets):
+        print(f"\nITEM {i}:")
+        for item in item_set:
+            print(
+                f"  {item.symbol} -> {' '.join(item.production[:item.dot_position])} . {' '.join(item.production[item.dot_position:])}")
+            
+    print("\n--------------------------------------------------\n")
+
+
+    print("Tabla de análisis sintáctico:")
+    print_parsing_table(parsing_table)
+
 
 
 
