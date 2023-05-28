@@ -1,0 +1,3 @@
+S - # U T | T ?
+T - a S | b U c | Ɛ
+U - a S c | b T d

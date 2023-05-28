@@ -2,4 +2,4 @@ E - T X
 X - + T X | Ɛ
 T - F Y | F
 Y - * F Y | Ɛ
-F - ( E ) | id
+F - ( E ) | i
