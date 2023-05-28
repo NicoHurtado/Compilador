@@ -2,7 +2,7 @@ from collections import deque
 from Grammar import *
 
 
-no_terminales, terminales, simbolo_inicial, producciones = read('input4.txt')
+no_terminales, terminales, simbolo_inicial, producciones = read('input2.txt')
 G = gramatica(no_terminales, terminales, simbolo_inicial, producciones)
 
 follow = FOLLOW(G)
@@ -190,6 +190,13 @@ if __name__ == '__main__':
 
     print("Tabla de análisis sintáctico:")
     print_parsing_table(parsing_table)
+
+    cadena = input("Ingrese una cadena: ")
+    if verificar_cadena(cadena):
+        print("La cadena es válida")
+    else:
+        print("La cadena no es válida")
+        
 
 
 

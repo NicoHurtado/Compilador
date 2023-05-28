@@ -21,7 +21,6 @@ def es_LL1(tabla):
 
 
 
-
 def Tabla(terminales, noterminales, producciones):
     tabla = {}
     for no_terminal in noterminales:
